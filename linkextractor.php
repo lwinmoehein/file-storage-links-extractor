@@ -3,6 +3,11 @@
 
 require 'vendor/autoload.php';
 
+if(isset($_POST['media_link']))
+    echo json_encode(["message"=>"No Link Provided"]);
+
+$requestLink = $_POST['media_link'];
+
 class LINKTYPES {
     public const GOOGLE_DRIVE_LINK="GOOGLE_DRIVE_LINK";
     public const MEDIA_FIRE_LINK = "MEDIA_FIRE_LINK";    
@@ -14,12 +19,9 @@ $googleDriveLinkPattern = "/drive.google.com/i";
 $mediaFireLinkIdToBeScraped = "#downloadButton";
 $googleDriveLinkIdToBeScraped = "#uc-download-link";
 
-$mediaFire = 'https://www.mediafire.com/file/fa07cvryrx3lvel/The_Easiest_Way_To_Learn_Hiragana.mp4/file';
-$googleDrive =  'https://drive.google.com/u/0/uc?id=115Dxnbm0L0BX7t1qYh5JEAk4aAyOGwCN&export=download';
-
 
 $linkObject = new stdClass();
-$linkObject->url = $mediaFire;
+$linkObject->url = $requestLink;
 
 if(preg_match($mediaFireLinkPattern, $linkObject->url)){
     $linkObject->type = LINKTYPES::MEDIA_FIRE_LINK;
@@ -36,9 +38,9 @@ $crawler = $client->request('GET',$linkObject->url);
 
 switch($linkObject->type){
     case LINKTYPES::MEDIA_FIRE_LINK:
-        $link = $crawler->filter($linkObject->linkPattern)->link();
+        $linkObject->absoluteLink = $crawler->filter($linkObject->linkPattern)->link()->getUri();
     default :
-        $link = $crawler->filter($linkObject->linkPattern)->link();
+        $linkObject->absoluteLink = $crawler->filter($linkObject->linkPattern)->link()->getUri();
 }
-echo $linkObject->type."::";
-echo $link->getUri().PHP_EOL;
+
+echo json_encode($linkObject);
