@@ -3,8 +3,10 @@
 
 require 'vendor/autoload.php';
 
-if(!isset($_POST['media_link']))
+if(!isset($_POST['media_link'])){
     echo json_encode(["message"=>"No Link Provided"]);
+    die();
+}
 
 $requestLink = $_POST['media_link'];
 
